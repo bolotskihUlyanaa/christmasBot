@@ -1,0 +1,6 @@
+{"Persons":[
+    {"Username":"name1","Free":true,"Block":null,"Friend":"","Sex":true},
+    {"Username":"name2","Free":true,"Block":["name1"],"Friend":"","Sex":true},
+    {"Username":"name3","Free":true,"Block":null,"Friend":"","Sex":true},
+    {"Username":"name4","Free":true,"Block":null,"Friend":"","Sex":false}
+    ]}

@@ -1,0 +1,6 @@
+token: "token chat"
+personFile: "personsExample.txt"
+logFile: "bot.log"
+rulesMessage: "Текст при нажатии на кнопку Узнать правила"
+startMessage: "Привет! Это бот для игры в Тайного Санту!"
+startStiker: "id стикера, отправляется после startMessage"

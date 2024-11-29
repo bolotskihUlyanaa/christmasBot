@@ -8,8 +8,7 @@ import (
 	"os"
 	"time"
 
-	//chbot "github.com/bolotskihUlyanaa/christmasBot"
-
+	"github.com/bolotskihUlyanaa/christmasBot/pkg"
 	"github.com/mymmrac/telego"
 	th "github.com/mymmrac/telego/telegohandler"
 	tu "github.com/mymmrac/telego/telegoutil"
@@ -35,12 +34,10 @@ func loadPersonsFromFile() {
 	if err != nil {
 		log.Panicln("Error with read file: ", err.Error())
 	}
-	//var persons persons
 	err = json.Unmarshal(data, &players)
 	if err != nil {
 		log.Panicln("Error with decoding: ", err.Error())
 	}
-	//arr = persons.Persons
 }
 
 func savePersonsToFile() {
@@ -48,8 +45,7 @@ func savePersonsToFile() {
 	if err != nil {
 		log.Panicln("Error with open file: ", err.Error())
 	}
-	//a := persons{arr}
-	b, err := json.Marshal(players) //a
+	b, err := json.Marshal(players)
 	if err != nil {
 		log.Panicln("Error with encoding: ", err.Error())
 	}
@@ -67,16 +63,12 @@ func initConfig() error {
 }
 
 var conf Config
-
-var players some.persons
-
-//var arr []person
+var players pkg.Persons
 
 func main() {
-
 	//инициализаируем данные из конфигурационного файла
 	if err := initConfig(); err != nil {
-		log.Fatalf("Error initializing configs: ", err.Error())
+		log.Fatal("Error initializing configs: ", err.Error())
 	}
 	conf = Config{
 		token:        viper.GetString("token"),
@@ -104,7 +96,7 @@ func main() {
 	log.SetOutput(file)
 	log.Println(time.Now())
 	loadPersonsFromFile()
-	count := len(players.Persons) //len(arr)
+	count := len(players.Persons)
 
 	bot, err := telego.NewBot(conf.token, telego.WithDefaultDebugLogger())
 	if err != nil {
@@ -139,53 +131,25 @@ func main() {
 		chatID := tu.ID(update.Message.Chat.ID)
 
 		//определяем по нику пользователя
-		name := update.Message.From.Username
-		per := players.find(name)
-
-		/*
-			var per *person
-			for i := 0; i < count; i++ {
-				if arr[i].Username == name {
-					per = &arr[i]
-					break
-				}
-			}
-		*/
+		person := players.Find(update.Message.From.Username)
 
 		//если друг еще не назначен
 		//если чел повторно отправляет, то ему тот же чел попадается
-		if per.Friend == "" {
+		if person.Friend == "" {
 			var idx int
 			for {
 				idx = rand.Intn(count)
-				/*
-					if per.Sex != arr[idx].Sex && arr[idx].Free && !per.isBlock(arr[idx].Username) {
-						arr[idx].Free = false
-						per.Friend = arr[idx].Username
-						savePersonsToFile()
-						break
-					}
-
-						//не занят ли он, не попался ли он самому себе, не в блоке ли
-						if arr[idx].Free && arr[idx].Username != per.Username && !per.isBlock(arr[idx].Username) {
-							arr[idx].Free = false
-							per.Friend = arr[idx].Username
-							savePersonsToFile()
-							break
-						}
-				*/
-				if per.filter2(&players.Persons[idx]) { //&arr[idx]
+				if person.Filter2(&players.Persons[idx]) {
 					savePersonsToFile()
 					break
 				}
 			}
-			//per.Friend = arr[idx].Username
 		}
 
 		_, _ = bot.SendMessage(
 			tu.Message(
 				chatID,
-				"<tg-spoiler>@"+per.Friend+"</tg-spoiler>",
+				"<tg-spoiler>@"+person.Friend+"</tg-spoiler>",
 			).WithParseMode("HTML").WithReplyMarkup(keyboard),
 		)
 	}, th.TextEqual("Узнать получателя"))
